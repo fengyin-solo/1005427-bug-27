@@ -111,6 +111,8 @@ export const MODULES: ModuleMeta[] = [
     actions: ["提交批复", "开始施工", "确认竣工"],
     actionTargets: {"提交批复": "已批复", "开始施工": "施工中", "确认竣工": "已竣工"},
     metrics: ["施工中工程", "待批复工程", "已竣工工程"],
+    // 状态只能顺着「待批复 → 已批复 → 施工中 → 已竣工」推进，禁止回退、禁止跳级。
+    strict: true,
   },
   {
     key: "cutting",

@@ -22,7 +22,32 @@
       <span v-for="item in statusSummary" :key="item.status" class="legend-item">
         {{ item.status }}：{{ item.count }}
       </span>
+      <span class="legend-item legend-todo">待核拨付：{{ todos.length }}</span>
     </p>
+
+    <section v-if="todos.length" class="todo-panel">
+      <h3 class="todo-title">待核拨付清单（治理工程批复回写，与工程详情读同一份批复金额）</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>工程编号</th>
+            <th>批复金额</th>
+            <th>承建单位</th>
+            <th>批复日期</th>
+            <th>拨付状态</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="todo in todos" :key="todo.key">
+            <td>{{ todo.projectCode }}</td>
+            <td class="amount-cell">{{ formatAmount(todo.amount) }}</td>
+            <td>{{ todo.contractor || '—' }}</td>
+            <td>{{ todo.approvalDate || '—' }}</td>
+            <td><span class="legend-item legend-todo">待核拨付</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
     <form class="filter-bar" @submit.prevent="reload">
       <label v-for="field in filterFields" :key="field" class="filter-item">
@@ -74,12 +99,14 @@
 import { computed, onMounted, ref } from 'vue'
 
 import {
+  disbursementTodos,
   downloadEntries,
   listEntries,
   moduleMeta,
   runAction as applyAction,
 } from '@/api/local-service'
-import type { EntryRow } from '@/data/types'
+import { formatAmount } from '@/data/project-domain'
+import type { DisbursementTodo, EntryRow } from '@/data/types'
 
 const meta = moduleMeta('consult')
 const columns = ["会商编号", "会商主题", "参会专家", "会商日期", "会商结论", "建议措施", "纪要归档日", "会商状态"]
@@ -88,6 +115,7 @@ const statuses = ["待组织", "已组织", "已出结论", "已取消"]
 const stats = [{"label": "待组织会商", "value": 0}, {"label": "已出结论会商", "value": 0}, {"label": "本月会商次数", "value": 0}]
 
 const rows = ref<EntryRow[]>([])
+const todos = ref<DisbursementTodo[]>([])
 const total = ref(0)
 const errorMessage = ref('')
 const filters = ref<Record<string, string>>({})
@@ -128,6 +156,7 @@ function reload() {
     const payload = listEntries(meta.key, filters.value)
     rows.value = payload.items
     total.value = payload.total
+    todos.value = disbursementTodos()
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : '专家会商列表读取失败'
   }
@@ -135,3 +164,10 @@ function reload() {
 
 onMounted(reload)
 </script>
+
+<style scoped>
+.legend-todo { background: #fff7e6; color: #ad4e00; }
+.todo-panel { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
+.todo-title { font-size: 13px; margin: 0 0 8px; }
+.amount-cell { color: var(--brand); font-weight: 600; }
+</style>
