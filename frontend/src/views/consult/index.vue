@@ -84,7 +84,7 @@ import type { EntryRow } from '@/data/types'
 const meta = moduleMeta('consult')
 const columns = ["会商编号", "会商主题", "参会专家", "会商日期", "会商结论", "建议措施", "纪要归档日", "会商状态"]
 const actions = ["确认组织", "提交结论", "取消会商"]
-const statuses = ["待组织", "已组织", "已出结论", "已取消"]
+const statuses = ["待组织", "已组织", "已出结论", "已取消", "待核拨付"]
 const stats = [{"label": "待组织会商", "value": 0}, {"label": "已出结论会商", "value": 0}, {"label": "本月会商次数", "value": 0}]
 
 const rows = ref<EntryRow[]>([])
